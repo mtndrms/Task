@@ -3,13 +3,17 @@ package io.minimaltools.task.presentation.feature.home
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,10 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.minimaltools.task.data.fake.task.FakeTaskData.previewTask
@@ -66,8 +73,10 @@ private fun HomeScreen(
     hideBottomSheet: () -> Unit
 ) {
     if (isBottomSheetVisible) {
-        ModalBottomSheet(onDismissRequest =  hideBottomSheet) {
-            
+        ModalBottomSheet(
+            onDismissRequest = hideBottomSheet
+        ) {
+
         }
     }
 
@@ -87,6 +96,7 @@ private fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         items(items = uiState.tasks) { task: Task ->
+            Spacer(modifier = Modifier.height(5.dp))
             TaskItem(
                 name = task.name,
                 dueDate = task.dueDate,
@@ -96,6 +106,7 @@ private fun HomeScreen(
                 isMarked = false,
                 pinTask = pinTask
             )
+            Spacer(modifier = Modifier.height(5.dp))
         }
     }
 }
@@ -116,43 +127,74 @@ private fun TaskItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(80.dp)
             .background(MaterialTheme.colorScheme.background)
-            .padding(end = 10.dp),
+            .padding(start = 8.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
             checked = checkedState,
-            onCheckedChange = { checkedState = checkedState.not() },
-            modifier = Modifier.padding(horizontal = 5.dp)
+            onCheckedChange = { checkedState = checkedState.not() }
         )
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
-        )
-        IconButton(
-            onClick = {
-                markedState = markedState.not()
-                pinTask()
-            }) {
-            Icon(
-                painter = painterResource(
-                    id = if (markedState) AppIcons.Star else AppIcons.StarOutline
-                ),
-                tint = MaterialTheme.colorScheme.onBackground,
-                contentDescription = "favorite"
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(start = 8.dp)
+                .clip(shape = RoundedCornerShape(size = 8.dp))
+                .background(MaterialTheme.colorScheme.surface),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .clip(shape = RoundedCornerShape(size = 8.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .weight(1f, fill = true)
+                    .padding(vertical = 16.dp, horizontal = 12.dp),
+            ) {
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.W500,
+                        fontSize = 16.sp,
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.W300,
+                        fontSize = 14.sp,
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            IconButton(
+                onClick = {
+                    markedState = markedState.not()
+                    pinTask()
+                }) {
+                Icon(
+                    painter = painterResource(
+                        id = if (markedState) AppIcons.Star else AppIcons.StarOutline
+                    ),
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    contentDescription = "favorite"
+                )
+            }
         }
     }
 }
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
-fun PreviewTaskItemLight() {
+private fun PreviewTaskItemNewLight() {
     AppTheme {
         TaskItem(
             name = previewTask.name,
@@ -168,7 +210,7 @@ fun PreviewTaskItemLight() {
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewTaskItemDark() {
+private fun PreviewTaskItemNewDark() {
     AppTheme {
         TaskItem(
             name = previewTask.name,

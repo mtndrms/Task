@@ -30,7 +30,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.minimaltools.task.R
 import io.minimaltools.task.data.fake.group.FakeTaskGroupData.getAllFakeTaskGroups
 import io.minimaltools.task.data.fake.group.TaskGroup
 import io.minimaltools.task.presentation.common.AppIcons
@@ -60,14 +62,15 @@ fun TaskApp(appState: AppState = rememberAppState()) {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 5.dp)
                 ) {
-                    Text("Task", modifier = Modifier.padding(16.dp))
+                    Text(stringResource(id = R.string.app_name), modifier = Modifier.padding(16.dp))
                     Divider()
                     Text("Groups", modifier = Modifier.padding(16.dp))
                     Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -150,6 +153,4 @@ fun TaskApp(appState: AppState = rememberAppState()) {
             )
         }
     }
-
-
 }
