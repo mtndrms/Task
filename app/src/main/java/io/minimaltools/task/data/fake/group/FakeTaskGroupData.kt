@@ -1,5 +1,7 @@
 package io.minimaltools.task.data.fake.group
 
+import io.minimaltools.task.data.local.entity.group.TaskGroup
+
 object FakeTaskGroupData {
     private val group1 = TaskGroup(
         title = "My Tasks",

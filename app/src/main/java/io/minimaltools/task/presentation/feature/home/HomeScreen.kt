@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.minimaltools.task.data.fake.task.FakeTaskData.previewTask
-import io.minimaltools.task.data.fake.task.Priority
-import io.minimaltools.task.data.fake.task.Task
+import io.minimaltools.task.data.local.entity.task.Priority
+import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.presentation.common.AppIcons
 import io.minimaltools.task.presentation.theme.AppTheme
 

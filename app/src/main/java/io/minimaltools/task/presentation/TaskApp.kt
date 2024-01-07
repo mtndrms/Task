@@ -34,7 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.minimaltools.task.R
 import io.minimaltools.task.data.fake.group.FakeTaskGroupData.getAllFakeTaskGroups
-import io.minimaltools.task.data.fake.group.TaskGroup
+import io.minimaltools.task.data.local.entity.group.TaskGroup
 import io.minimaltools.task.presentation.common.AppIcons
 import kotlinx.coroutines.launch
 

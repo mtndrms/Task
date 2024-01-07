@@ -1,5 +1,8 @@
 package io.minimaltools.task.data.fake.task
 
+import io.minimaltools.task.data.local.entity.task.Priority
+import io.minimaltools.task.data.local.entity.task.Task
+
 object FakeTaskData {
     val previewTask = Task(
         "Quantum Leap Experiment",
