@@ -15,14 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,53 +37,43 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.minimaltools.task.data.fake.task.FakeTaskData.previewTask
-import io.minimaltools.task.data.local.entity.task.Priority
+import io.minimaltools.task.data.fake.task.FakeTaskData
+import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.presentation.common.AppIcons
+import io.minimaltools.task.presentation.feature.home.create_task.CreateTaskDialog
 import io.minimaltools.task.presentation.theme.AppTheme
+import io.minimaltools.task.util.dismissDialog
+import io.minimaltools.task.util.isVisible
 
 @Composable
 internal fun HomeRoute(
     onShowSnackbar: suspend (String, String) -> Boolean,
     viewModel: HomeViewModel = hiltViewModel(),
-    isBottomSheetVisible: Boolean,
-    hideBottomSheet: () -> Unit,
+    createTaskDialogVisibilityState: MutableState<Boolean>
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeScreen(
         uiState = uiState,
+        createTaskDialogVisibilityState = createTaskDialogVisibilityState,
         onShowSnackbar = onShowSnackbar,
         pinTask = viewModel::pinTask,
-        clearUndoState = viewModel::clearUndoState,
-        isBottomSheetVisible = isBottomSheetVisible,
-        hideBottomSheet = hideBottomSheet
+        clearUndoState = viewModel::clearUndoState
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
     uiState: HomeUiState,
     onShowSnackbar: suspend (String, String) -> Boolean,
     pinTask: () -> Unit,
     clearUndoState: () -> Unit,
-    isBottomSheetVisible: Boolean,
-    hideBottomSheet: () -> Unit
+    createTaskDialogVisibilityState: MutableState<Boolean>
 ) {
-    if (isBottomSheetVisible) {
-        ModalBottomSheet(
-            onDismissRequest = hideBottomSheet
-        ) {
-
-        }
-    }
-
     LaunchedEffect(uiState.shouldDisplayPinnedTaskSnackbar) {
         if (uiState.shouldDisplayPinnedTaskSnackbar) {
             val snackbarResult = onShowSnackbar("Task pinned", "Undo")
             if (snackbarResult) {
-                Log.i("HomeScreen", "Perform undo operation here!")
                 clearUndoState()
             } else {
                 clearUndoState()
@@ -92,21 +81,34 @@ private fun HomeScreen(
         }
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
+    if (createTaskDialogVisibilityState.isVisible()) {
+        CreateTaskDialog(
+            dismissDialog = {
+                createTaskDialogVisibilityState.dismissDialog()
+            }
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        items(items = uiState.tasks) { task: Task ->
-            Spacer(modifier = Modifier.height(5.dp))
-            TaskItem(
-                name = task.name,
-                dueDate = task.dueDate,
-                priority = task.priority,
-                description = task.description,
-                isChecked = false,
-                isMarked = false,
-                pinTask = pinTask
-            )
-            Spacer(modifier = Modifier.height(5.dp))
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(items = uiState.tasks) { task: Task ->
+                Spacer(modifier = Modifier.height(10.dp))
+                TaskItem(
+                    name = task.name,
+                    dueDate = task.dueDate,
+                    priority = task.priority,
+                    description = task.description,
+                    isChecked = false,
+                    isMarked = false,
+                    pinTask = pinTask
+                )
+            }
         }
     }
 }
@@ -194,13 +196,47 @@ private fun TaskItem(
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
+private fun PreviewHomeScreenLight() {
+    AppTheme {
+        HomeScreen(
+            uiState = HomeUiState(
+                tasks = FakeTaskData.getAllFakeTasks(),
+                shouldDisplayPinnedTaskSnackbar = false
+            ),
+            onShowSnackbar = { _, _ -> true },
+            pinTask = { /*TODO*/ },
+            clearUndoState = { /*TODO*/ },
+            createTaskDialogVisibilityState = remember { mutableStateOf(false) }
+        )
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewHomeScreenDark() {
+    AppTheme {
+        HomeScreen(
+            uiState = HomeUiState(
+                tasks = FakeTaskData.getAllFakeTasks(),
+                shouldDisplayPinnedTaskSnackbar = false
+            ),
+            onShowSnackbar = { _, _ -> true },
+            pinTask = { /*TODO*/ },
+            clearUndoState = { /*TODO*/ },
+            createTaskDialogVisibilityState = remember { mutableStateOf(false) }
+        )
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
 private fun PreviewTaskItemNewLight() {
     AppTheme {
         TaskItem(
-            name = previewTask.name,
-            dueDate = previewTask.dueDate,
-            priority = previewTask.priority,
-            description = previewTask.description,
+            name = FakeTaskData.getTaskForPreview().name,
+            dueDate = FakeTaskData.getTaskForPreview().dueDate,
+            priority = FakeTaskData.getTaskForPreview().priority,
+            description = FakeTaskData.getTaskForPreview().description,
             isChecked = false,
             isMarked = false,
             pinTask = {}
@@ -213,10 +249,10 @@ private fun PreviewTaskItemNewLight() {
 private fun PreviewTaskItemNewDark() {
     AppTheme {
         TaskItem(
-            name = previewTask.name,
-            dueDate = previewTask.dueDate,
-            priority = previewTask.priority,
-            description = previewTask.description,
+            name = FakeTaskData.getTaskForPreview().name,
+            dueDate = FakeTaskData.getTaskForPreview().dueDate,
+            priority = FakeTaskData.getTaskForPreview().priority,
+            description = FakeTaskData.getTaskForPreview().description,
             isChecked = false,
             isMarked = false,
             pinTask = {}

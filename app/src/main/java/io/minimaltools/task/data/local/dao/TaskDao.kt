@@ -7,7 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import io.minimaltools.task.data.local.entity.group.TaskGroup
-import io.minimaltools.task.data.local.entity.task.Priority
+import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.data.local.entity.task.Task
 
 @Dao

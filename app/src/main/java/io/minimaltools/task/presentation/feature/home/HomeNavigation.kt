@@ -1,5 +1,6 @@
 package io.minimaltools.task.presentation.feature.home
 
+import androidx.compose.runtime.MutableState
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -12,14 +13,12 @@ fun NavController.navigateToHomeScreen(navOptions: NavOptions? = null) {
 
 fun NavGraphBuilder.homeScreen(
     onShowSnackbar: suspend (String, String) -> Boolean,
-    isBottomSheetVisible: Boolean,
-    hideBottomSheet: () -> Unit
+    createTaskDialogVisibilityState: MutableState<Boolean>
 ) {
     composable(route = TopLevelDestination.HOME.route) {
         HomeRoute(
             onShowSnackbar = onShowSnackbar,
-            isBottomSheetVisible = isBottomSheetVisible,
-            hideBottomSheet = hideBottomSheet
+            createTaskDialogVisibilityState = createTaskDialogVisibilityState
         )
     }
 }

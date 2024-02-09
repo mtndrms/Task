@@ -2,7 +2,7 @@ package io.minimaltools.task.data.repository
 
 import io.minimaltools.task.data.local.LocalDataSource
 import io.minimaltools.task.data.local.entity.group.TaskGroup
-import io.minimaltools.task.data.local.entity.task.Priority
+import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.data.local.entity.task.Task
 import javax.inject.Inject
 

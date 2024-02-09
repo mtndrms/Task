@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.minimaltools.task.data.local.entity.group.TaskGroup
+import io.minimaltools.task.data.local.entity.task.priority.Priority
 
 @Entity(tableName = "task")
 data class Task(

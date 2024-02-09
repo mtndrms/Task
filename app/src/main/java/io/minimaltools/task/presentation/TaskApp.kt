@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
@@ -22,7 +22,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import io.minimaltools.task.R
 import io.minimaltools.task.data.fake.group.FakeTaskGroupData.getAllFakeTaskGroups
 import io.minimaltools.task.data.local.entity.group.TaskGroup
 import io.minimaltools.task.presentation.common.AppIcons
+import io.minimaltools.task.util.showDialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,18 +44,11 @@ fun TaskApp(appState: AppState = rememberAppState()) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var taskGroups by remember { mutableStateOf(emptyList<TaskGroup>()) }
     val snackbarHostState = remember { SnackbarHostState() }
-    val bottomSheetState = rememberModalBottomSheetState()
-    var bottomSheetVisibilityState by remember { mutableStateOf(false) }
+
+    val createTaskDialogVisibilityState = remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         taskGroups = getAllFakeTaskGroups()
-    }
-
-    fun hideBottomSheet() {
-        appState.coroutineScope.launch {
-            bottomSheetState.hide()
-            bottomSheetVisibilityState = bottomSheetState.isVisible
-        }
     }
 
     ModalNavigationDrawer(
@@ -71,7 +64,7 @@ fun TaskApp(appState: AppState = rememberAppState()) {
                         .padding(horizontal = 5.dp)
                 ) {
                     Text(stringResource(id = R.string.app_name), modifier = Modifier.padding(16.dp))
-                    Divider()
+                    HorizontalDivider()
                     Text("Groups", modifier = Modifier.padding(16.dp))
                     Column(modifier = Modifier.padding(start = 16.dp)) {
                         taskGroups.forEach { taskGroup: TaskGroup ->
@@ -111,6 +104,18 @@ fun TaskApp(appState: AppState = rememberAppState()) {
                     actions = {
                         IconButton(
                             onClick = {
+                                // handle click here
+                            },
+                            content = {
+                                Icon(
+                                    imageVector = AppIcons.Date,
+                                    contentDescription = "pick date"
+                                )
+                            }
+                        )
+                        IconButton(
+                            onClick = {
+                                // handle click here
                             },
                             content = {
                                 Icon(
@@ -125,10 +130,7 @@ fun TaskApp(appState: AppState = rememberAppState()) {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        appState.coroutineScope.launch {
-                            bottomSheetState.expand()
-                            bottomSheetVisibilityState = bottomSheetState.isVisible
-                        }
+                        createTaskDialogVisibilityState.showDialog()
                     },
                     content = {
                         Icon(imageVector = AppIcons.Add, contentDescription = "create new task")
@@ -140,6 +142,7 @@ fun TaskApp(appState: AppState = rememberAppState()) {
         ) { paddingValues: PaddingValues ->
             AppNavHost(
                 appState = appState,
+                createTaskDialogVisibilityState = createTaskDialogVisibilityState,
                 onShowSnackbar = { message, action ->
                     snackbarHostState.showSnackbar(
                         message = message,
@@ -147,8 +150,6 @@ fun TaskApp(appState: AppState = rememberAppState()) {
                         duration = SnackbarDuration.Short
                     ) == SnackbarResult.ActionPerformed
                 },
-                isBottomSheetVisible = bottomSheetVisibilityState,
-                hideBottomSheet = ::hideBottomSheet,
                 modifier = Modifier.padding(paddingValues)
             )
         }
