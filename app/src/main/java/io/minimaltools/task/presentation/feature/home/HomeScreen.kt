@@ -1,7 +1,6 @@
 package io.minimaltools.task.presentation.feature.home
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,8 +37,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.minimaltools.task.data.fake.task.FakeTaskData
-import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.data.local.entity.task.Task
+import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.presentation.common.AppIcons
 import io.minimaltools.task.presentation.feature.home.create_task.CreateTaskDialog
 import io.minimaltools.task.presentation.theme.AppTheme
@@ -57,6 +56,7 @@ internal fun HomeRoute(
         uiState = uiState,
         createTaskDialogVisibilityState = createTaskDialogVisibilityState,
         onShowSnackbar = onShowSnackbar,
+        createTask = viewModel::createTask,
         pinTask = viewModel::pinTask,
         clearUndoState = viewModel::clearUndoState
     )
@@ -66,6 +66,7 @@ internal fun HomeRoute(
 private fun HomeScreen(
     uiState: HomeUiState,
     onShowSnackbar: suspend (String, String) -> Boolean,
+    createTask: (Task) -> Unit,
     pinTask: () -> Unit,
     clearUndoState: () -> Unit,
     createTaskDialogVisibilityState: MutableState<Boolean>
@@ -83,6 +84,9 @@ private fun HomeScreen(
 
     if (createTaskDialogVisibilityState.isVisible()) {
         CreateTaskDialog(
+            createTask = { task: Task ->
+                createTask(task)
+            },
             dismissDialog = {
                 createTaskDialogVisibilityState.dismissDialog()
             }
@@ -204,6 +208,7 @@ private fun PreviewHomeScreenLight() {
                 shouldDisplayPinnedTaskSnackbar = false
             ),
             onShowSnackbar = { _, _ -> true },
+            createTask = {},
             pinTask = { /*TODO*/ },
             clearUndoState = { /*TODO*/ },
             createTaskDialogVisibilityState = remember { mutableStateOf(false) }
@@ -221,6 +226,7 @@ private fun PreviewHomeScreenDark() {
                 shouldDisplayPinnedTaskSnackbar = false
             ),
             onShowSnackbar = { _, _ -> true },
+            createTask = {},
             pinTask = { /*TODO*/ },
             clearUndoState = { /*TODO*/ },
             createTaskDialogVisibilityState = remember { mutableStateOf(false) }

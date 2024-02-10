@@ -3,6 +3,7 @@ package io.minimaltools.task.presentation.feature.home
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.minimaltools.task.data.fake.task.FakeTaskData.getAllFakeTasks
+import io.minimaltools.task.data.local.entity.task.Task
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -20,6 +21,24 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private fun getAll() {
         _uiState.update { state: HomeUiState ->
             state.copy(tasks = getAllFakeTasks())
+        }
+    }
+
+    fun createTask(task: Task) {
+        _uiState.update { state: HomeUiState ->
+            val tasks = state.tasks.toMutableList()
+            tasks.add(task)
+
+            state.copy(tasks = tasks)
+        }
+    }
+
+    fun removeTask(task: Task) {
+        _uiState.update { state: HomeUiState ->
+            val tasks = state.tasks.toMutableList()
+            tasks.remove(task)
+
+            state.copy(tasks = tasks)
         }
     }
 

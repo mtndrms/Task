@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -32,8 +35,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,6 +55,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import io.minimaltools.task.R
 import io.minimaltools.task.data.fake.group.FakeTaskGroupData
+import io.minimaltools.task.data.fake.task.FakeTaskData
+import io.minimaltools.task.data.local.entity.group.TaskGroup
+import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.presentation.common.AppIcons
 import io.minimaltools.task.presentation.theme.AppTheme
@@ -58,10 +66,15 @@ import io.minimaltools.task.util.capitalize
 import io.minimaltools.task.util.dismissDialog
 import io.minimaltools.task.util.isVisible
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateTaskDialog(dismissDialog: () -> Unit) {
-    var title by remember { mutableStateOf("") }
+fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
+    val title = remember { mutableStateOf("") }
+    val description = remember { mutableStateOf("") }
+    val date = remember { mutableStateOf("") }
+    val time = remember { mutableStateOf("") }
+    val status = remember { mutableStateOf(false) }
+    val priority = remember { mutableStateOf(Priority.LOW) }
+    val taskGroup = remember { mutableStateOf(FakeTaskGroupData.getTaskGroupForPreview()) }
 
     Dialog(
         onDismissRequest = { dismissDialog() },
@@ -75,72 +88,85 @@ fun CreateTaskDialog(dismissDialog: () -> Unit) {
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
             ) {
-                TopAppBar(
-                    title = { Text(text = "New Task") },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                dismissDialog()
-                            },
-                            content = {
-                                Icon(
-                                    imageVector = AppIcons.Close,
-                                    contentDescription = stringResource(R.string.navigate_back)
-                                )
-                            }
-                        )
-                    },
-                    actions = {
-                        TextButton(
-                            onClick = {
-                                dismissDialog()
-                            },
-                            content = {
-                                Text(
-                                    text = stringResource(id = R.string.create),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            }
-                        )
-                    }
+                TopBar(
+                    task = Task(
+                        name = title.value,
+                        description = description.value,
+                        dueDate = date.value,
+                        dueTime = time.value,
+                        priority = priority.value,
+                        taskGroup = taskGroup.value,
+                        status = status.value
+                    ),
+                    createTask = createTask,
+                    dismissDialog = dismissDialog
                 )
+                Spacer(modifier = Modifier.height(height = 10.dp))
 
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
+                        .padding(horizontal = 20.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    SectionTitle(title = stringResource(id = R.string.title))
-                    TextField(
-                        value = title, onValueChange = { title = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Title(title)
+                    Description(description)
+
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            DateTimePicker(date, time)
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            StatusCheckbox(status)
+                        }
+                    }
                     Spacer(modifier = Modifier.height(height = 25.dp))
 
-                    SectionTitle(title = stringResource(id = R.string.description))
-                    TextField(
-                        value = title, onValueChange = { title = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(125.dp)
-                    )
-                    Spacer(modifier = Modifier.height(height = 25.dp))
+                    PriorityDropdownMenu(priority = priority, modifier = Modifier.fillMaxWidth())
+                    TaskGroupDropdownMenu(taskGroup = taskGroup, modifier = Modifier.fillMaxWidth())
 
-                    SectionTitle(title = stringResource(R.string.due_date))
-                    DateTimePicker()
                     Spacer(modifier = Modifier.height(height = 25.dp))
-
-                    SectionTitle(title = stringResource(id = R.string.priority))
-                    PriorityDropdownMenu(modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(height = 25.dp))
-
-                    SectionTitle(title = stringResource(id = R.string.task_group))
-                    TaskGroupDropdownMenu(modifier = Modifier.fillMaxWidth())
                 }
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopBar(task: Task, createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
+    TopAppBar(
+        title = { Text(text = "New Task") },
+        navigationIcon = {
+            IconButton(
+                onClick = {
+                    dismissDialog()
+                },
+                content = {
+                    Icon(
+                        imageVector = AppIcons.Close,
+                        contentDescription = stringResource(R.string.navigate_back)
+                    )
+                }
+            )
+        },
+        actions = {
+            TextButton(
+                onClick = {
+                    createTask(task)
+                    dismissDialog()
+                },
+                content = {
+                    Text(
+                        text = stringResource(id = R.string.create),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+            )
+        }
+    )
 }
 
 @Composable
@@ -155,44 +181,72 @@ private fun SectionTitle(title: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun DateTimePicker() {
-    val datePickerDialogVisibilityState = remember { mutableStateOf(false) }
-    val timePickerDialogVisibilityState = remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf("") }
-    var selectedTime by remember { mutableStateOf("") }
+private fun Title(title: MutableState<String>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionTitle(title = stringResource(id = R.string.title))
+        TextField(
+            value = title.value, onValueChange = { title.value = it },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(height = 25.dp))
+    }
+}
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+@Composable
+private fun Description(description: MutableState<String>) {
+    SectionTitle(title = stringResource(id = R.string.description))
+    TextField(
+        value = description.value, onValueChange = { description.value = it },
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface,
-                shape = RoundedCornerShape(4.dp)
+            .height(125.dp)
+    )
+    Spacer(modifier = Modifier.height(height = 25.dp))
+}
+
+@Composable
+private fun DateTimePicker(date: MutableState<String>, time: MutableState<String>) {
+    val datePickerDialogVisibilityState = remember { mutableStateOf(false) }
+    val timePickerDialogVisibilityState = remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionTitle(title = stringResource(id = R.string.due_date))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .padding(horizontal = 10.dp)
+                .clickable {
+                    datePickerDialogVisibilityState.value = true
+                }
+        ) {
+            Text(
+                text = "${date.value.ifEmpty { DateUtils.getPlaceholderDate() }} - ${time.value.ifEmpty { "00:00" }}",
+                style = MaterialTheme.typography.bodyLarge
             )
-            .padding(horizontal = 10.dp)
-            .clickable {
-                datePickerDialogVisibilityState.value = true
-            }
-    ) {
-        Text(
-            text = "${selectedDate.ifEmpty { DateUtils.getPlaceholderDate() }} - ${selectedTime.ifEmpty { "00:00" }}",
-            style = MaterialTheme.typography.bodyLarge
-        )
+        }
     }
 
     DatePicker(
         state = datePickerDialogVisibilityState,
-        onConfirm = {
-            selectedDate = it
+        onConfirm = { selectedDate ->
+            date.value = selectedDate
             timePickerDialogVisibilityState.value = true
         }
     )
 
     TimePicker(
         state = timePickerDialogVisibilityState,
-        onConfirm = { selectedTime = it }
+        onConfirm = { selectedTime ->
+            time.value = selectedTime
+        }
     )
 }
 
@@ -303,130 +357,152 @@ private fun TimePicker(state: MutableState<Boolean>, onConfirm: (time: String) -
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PriorityDropdownMenu(modifier: Modifier) {
-    var expanded by remember { mutableStateOf(false) }
-    var selected by remember { mutableStateOf(Priority.LOW.name.capitalize()) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it }
-    ) {
-        TextField(
-            value = selected,
-            onValueChange = { selected = it },
-            readOnly = true,
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded
-                )
-            },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+private fun StatusCheckbox(status: MutableState<Boolean>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionTitle(title = stringResource(id = R.string.status))
+        Row(
             modifier = Modifier
-                .menuAnchor()
-                .then(modifier)
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.exposedDropdownSize()
+                .fillMaxWidth()
+                .height(56.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Priority.entries.forEach {
-                DropdownMenuItem(
-                    text = { Text(text = it.name.capitalize()) },
-                    onClick = {
-                        selected = it.name.capitalize()
-                        expanded = false
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = it.icon,
-                            tint = it.color,
-                            contentDescription = null
-                        )
-                    }
-                )
-            }.also {
-                DropdownMenuItem(
-                    text = { Text(text = "Create a new one") },
-                    onClick = {
-                        // handle create new priority title here
-                        expanded = false
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = AppIcons.Create,
-                            contentDescription = stringResource(
-                                id = R.string.create
-                            )
-                        )
-                    }
-                )
-            }
+            Checkbox(checked = status.value, onCheckedChange = { status.value = it })
+            Text(text = "Mark as done")
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TaskGroupDropdownMenu(modifier: Modifier) {
+private fun PriorityDropdownMenu(priority: MutableState<Priority>, modifier: Modifier = Modifier) {
     var expanded by remember { mutableStateOf(false) }
-    var selected by remember {
-        mutableStateOf(
-            FakeTaskGroupData.getAllFakeTaskGroups().first().title
-        )
-    }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it }
-    ) {
-        TextField(
-            value = selected,
-            onValueChange = { selected = it },
-            readOnly = true,
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded
-                )
-            },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            modifier = Modifier
-                .menuAnchor()
-                .then(modifier)
-        )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionTitle(title = stringResource(id = R.string.priority))
 
-        DropdownMenu(
+        ExposedDropdownMenuBox(
             expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.exposedDropdownSize()
+            onExpandedChange = { expanded = it }
         ) {
-            FakeTaskGroupData.getAllFakeTaskGroups().forEach {
-                DropdownMenuItem(
-                    text = { Text(text = it.title.capitalize()) },
-                    onClick = {
-                        selected = it.title.capitalize()
-                        expanded = false
-                    }
-                )
-            }.also {
-                DropdownMenuItem(
-                    text = { Text(text = "Create a new one") },
-                    onClick = {
-                        // handle create new priority title here
-                        expanded = false
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = AppIcons.Create,
-                            contentDescription = stringResource(
-                                id = R.string.create
+            TextField(
+                value = priority.value.name,
+                onValueChange = { },
+                readOnly = true,
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = expanded
+                    )
+                },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .then(modifier)
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.exposedDropdownSize()
+            ) {
+                Priority.entries.forEach {
+                    DropdownMenuItem(
+                        text = { Text(text = it.name.capitalize()) },
+                        onClick = {
+                            priority.value = it
+                            expanded = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = it.icon,
+                                tint = it.color,
+                                contentDescription = null
                             )
-                        )
-                    }
-                )
+                        }
+                    )
+                }.also {
+                    DropdownMenuItem(
+                        text = { Text(text = "Create a new one") },
+                        onClick = {
+                            // handle create new priority title here
+                            expanded = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = AppIcons.Create,
+                                contentDescription = stringResource(
+                                    id = R.string.create
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(height = 25.dp))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TaskGroupDropdownMenu(
+    taskGroup: MutableState<TaskGroup>,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        SectionTitle(title = stringResource(id = R.string.task_group))
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
+        ) {
+            TextField(
+                value = taskGroup.value.title,
+                onValueChange = { },
+                readOnly = true,
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = expanded
+                    )
+                },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .then(modifier)
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.exposedDropdownSize()
+            ) {
+                FakeTaskGroupData.getAllFakeTaskGroups().forEach {
+                    DropdownMenuItem(
+                        text = { Text(text = it.title.capitalize()) },
+                        onClick = {
+                            taskGroup.value = it
+                            expanded = false
+                        }
+                    )
+                }.also {
+                    DropdownMenuItem(
+                        text = { Text(text = "Create a new one") },
+                        onClick = {
+                            // handle create new priority title here
+                            expanded = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = AppIcons.Create,
+                                contentDescription = stringResource(
+                                    id = R.string.create
+                                )
+                            )
+                        }
+                    )
+                }
             }
         }
     }
@@ -436,7 +512,7 @@ private fun TaskGroupDropdownMenu(modifier: Modifier) {
 @Composable
 private fun PreviewCreateTaskBottomSheetLight() {
     AppTheme {
-        CreateTaskDialog(dismissDialog = {})
+        CreateTaskDialog(createTask = {}, dismissDialog = {})
     }
 }
 
@@ -444,6 +520,6 @@ private fun PreviewCreateTaskBottomSheetLight() {
 @Composable
 private fun PreviewCreateTaskBottomSheetDark() {
     AppTheme {
-        CreateTaskDialog(dismissDialog = {})
+        CreateTaskDialog(createTask = {}, dismissDialog = {})
     }
 }

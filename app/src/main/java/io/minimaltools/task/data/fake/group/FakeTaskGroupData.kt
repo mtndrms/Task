@@ -39,4 +39,8 @@ object FakeTaskGroupData {
     fun getRandomTaskGroup(): TaskGroup {
         return getAllFakeTaskGroups().random()
     }
+
+    fun getTaskGroupForPreview(): TaskGroup {
+        return getAllFakeTaskGroups()[0]
+    }
 }
