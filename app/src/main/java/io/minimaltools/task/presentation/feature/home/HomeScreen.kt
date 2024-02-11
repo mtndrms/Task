@@ -1,7 +1,9 @@
 package io.minimaltools.task.presentation.feature.home
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,9 +30,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +52,7 @@ import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.presentation.common.AppIcons
 import io.minimaltools.task.presentation.feature.home.create_task.CreateTaskDialog
 import io.minimaltools.task.presentation.theme.AppTheme
+import io.minimaltools.task.util.capitalize
 import io.minimaltools.task.util.dismissDialog
 import io.minimaltools.task.util.isVisible
 
@@ -65,11 +76,11 @@ internal fun HomeRoute(
 @Composable
 private fun HomeScreen(
     uiState: HomeUiState,
+    createTaskDialogVisibilityState: MutableState<Boolean>,
     onShowSnackbar: suspend (String, String) -> Boolean,
     createTask: (Task) -> Unit,
     pinTask: () -> Unit,
-    clearUndoState: () -> Unit,
-    createTaskDialogVisibilityState: MutableState<Boolean>
+    clearUndoState: () -> Unit
 ) {
     LaunchedEffect(uiState.shouldDisplayPinnedTaskSnackbar) {
         if (uiState.shouldDisplayPinnedTaskSnackbar) {
@@ -106,9 +117,10 @@ private fun HomeScreen(
                 TaskItem(
                     name = task.name,
                     dueDate = task.dueDate,
+                    dueTime = task.dueTime,
                     priority = task.priority,
                     description = task.description,
-                    isChecked = false,
+                    isChecked = task.status,
                     isMarked = false,
                     pinTask = pinTask
                 )
@@ -121,6 +133,7 @@ private fun HomeScreen(
 private fun TaskItem(
     name: String,
     dueDate: String,
+    dueTime: String,
     priority: Priority,
     description: String,
     isChecked: Boolean,
@@ -133,7 +146,7 @@ private fun TaskItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp)
+            .height(100.dp)
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 8.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -180,22 +193,81 @@ private fun TaskItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.height(5.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = priority.name.capitalize(),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.W300,
+                            fontSize = 13.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = "|",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.W500,
+                            fontSize = 13.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(horizontal = 3.dp)
+                    )
+                    Text(
+                        text = "$dueDate at $dueTime",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.W300,
+                            fontSize = 13.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.End,
+                    )
+                }
             }
-            IconButton(
-                onClick = {
-                    markedState = markedState.not()
-                    pinTask()
-                }) {
-                Icon(
-                    painter = painterResource(
-                        id = if (markedState) AppIcons.Star else AppIcons.StarOutline
-                    ),
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    contentDescription = "favorite"
+            Box(modifier = Modifier.fillMaxHeight()) {
+                IconButton(
+                    onClick = {
+                        markedState = markedState.not()
+                        pinTask()
+                    },
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
+                    Icon(
+                        painter = painterResource(
+                            id = if (markedState) AppIcons.Star else AppIcons.StarOutline
+                        ),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        contentDescription = "favorite"
+                    )
+                }
+                TrianglePriorityIndicator(
+                    color = priority.color,
+                    modifier = Modifier.align(Alignment.BottomEnd)
                 )
             }
         }
     }
+}
+
+@Composable
+private fun TrianglePriorityIndicator(color: Color, modifier: Modifier = Modifier) {
+    Spacer(modifier = Modifier
+        .size(15.dp)
+        .drawWithCache {
+            val path = Path()
+            path.moveTo(size.width, 0f)
+            path.lineTo(size.width, size.height)
+            path.lineTo(0f, size.height)
+            path.close()
+            onDrawBehind {
+                drawPath(path, color)
+            }
+        }
+        .then(modifier))
 }
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
@@ -241,6 +313,7 @@ private fun PreviewTaskItemNewLight() {
         TaskItem(
             name = FakeTaskData.getTaskForPreview().name,
             dueDate = FakeTaskData.getTaskForPreview().dueDate,
+            dueTime = FakeTaskData.getTaskForPreview().dueTime,
             priority = FakeTaskData.getTaskForPreview().priority,
             description = FakeTaskData.getTaskForPreview().description,
             isChecked = false,
@@ -257,6 +330,7 @@ private fun PreviewTaskItemNewDark() {
         TaskItem(
             name = FakeTaskData.getTaskForPreview().name,
             dueDate = FakeTaskData.getTaskForPreview().dueDate,
+            dueTime = FakeTaskData.getTaskForPreview().dueTime,
             priority = FakeTaskData.getTaskForPreview().priority,
             description = FakeTaskData.getTaskForPreview().description,
             isChecked = false,

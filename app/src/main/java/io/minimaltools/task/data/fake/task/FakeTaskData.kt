@@ -97,7 +97,7 @@ object FakeTaskData {
         id = 0,
         name = "Pirate Treasure Hunt",
         dueDate = "2024-01-15",
-        dueTime = "22230",
+        dueTime = "22:30",
         priority = Priority.HIGH,
         description = "Plan a pirate treasure hunt with a detailed map and hidden clues. Ensure that the treasure chest contains chocolate doubloons and gummy worms.",
         status = true,

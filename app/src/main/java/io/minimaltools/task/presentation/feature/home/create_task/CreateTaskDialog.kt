@@ -35,10 +35,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,7 +53,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import io.minimaltools.task.R
 import io.minimaltools.task.data.fake.group.FakeTaskGroupData
-import io.minimaltools.task.data.fake.task.FakeTaskData
 import io.minimaltools.task.data.local.entity.group.TaskGroup
 import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.data.local.entity.task.priority.Priority
@@ -386,7 +383,7 @@ private fun PriorityDropdownMenu(priority: MutableState<Priority>, modifier: Mod
             onExpandedChange = { expanded = it }
         ) {
             TextField(
-                value = priority.value.name,
+                value = priority.value.name.capitalize(),
                 onValueChange = { },
                 readOnly = true,
                 trailingIcon = {
