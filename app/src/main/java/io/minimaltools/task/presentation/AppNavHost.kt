@@ -13,6 +13,7 @@ import io.minimaltools.task.presentation.navigation.TopLevelDestination
 fun AppNavHost(
     appState: AppState,
     createTaskDialogVisibilityState: MutableState<Boolean>,
+    floatingActionButtonVisibilityState: MutableState<Boolean>,
     onShowSnackbar: suspend (String, String) -> Boolean,
     modifier: Modifier
 ) {
@@ -25,7 +26,8 @@ fun AppNavHost(
     ) {
         homeScreen(
             onShowSnackbar = onShowSnackbar,
-            createTaskDialogVisibilityState = createTaskDialogVisibilityState
+            createTaskDialogVisibilityState = createTaskDialogVisibilityState,
+            floatingActionButtonVisibilityState = floatingActionButtonVisibilityState
         )
         settingsScreen()
     }

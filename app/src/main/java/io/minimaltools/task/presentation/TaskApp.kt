@@ -1,5 +1,8 @@
 package io.minimaltools.task.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +38,7 @@ import io.minimaltools.task.R
 import io.minimaltools.task.data.fake.group.FakeTaskGroupData.getAllFakeTaskGroups
 import io.minimaltools.task.data.local.entity.group.TaskGroup
 import io.minimaltools.task.presentation.common.AppIcons
-import io.minimaltools.task.util.showDialog
+import io.minimaltools.task.util.show
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,6 +49,7 @@ fun TaskApp(appState: AppState = rememberAppState()) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     val createTaskDialogVisibilityState = remember { mutableStateOf(false) }
+    val floatingActionButtonVisibilityState = remember { mutableStateOf(true) }
 
     LaunchedEffect(true) {
         taskGroups = getAllFakeTaskGroups()
@@ -128,14 +132,20 @@ fun TaskApp(appState: AppState = rememberAppState()) {
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        createTaskDialogVisibilityState.showDialog()
-                    },
-                    content = {
-                        Icon(imageVector = AppIcons.Add, contentDescription = "create new task")
-                    }
-                )
+                AnimatedVisibility(
+                    visible = floatingActionButtonVisibilityState.value,
+                    enter = scaleIn(),
+                    exit = scaleOut()
+                ) {
+                    FloatingActionButton(
+                        onClick = {
+                            createTaskDialogVisibilityState.show()
+                        },
+                        content = {
+                            Icon(imageVector = AppIcons.Add, contentDescription = "create new task")
+                        }
+                    )
+                }
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
             modifier = Modifier.fillMaxSize()
@@ -143,6 +153,7 @@ fun TaskApp(appState: AppState = rememberAppState()) {
             AppNavHost(
                 appState = appState,
                 createTaskDialogVisibilityState = createTaskDialogVisibilityState,
+                floatingActionButtonVisibilityState = floatingActionButtonVisibilityState,
                 onShowSnackbar = { message, action ->
                     snackbarHostState.showSnackbar(
                         message = message,

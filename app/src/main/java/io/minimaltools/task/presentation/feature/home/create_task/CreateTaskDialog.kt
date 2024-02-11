@@ -60,7 +60,7 @@ import io.minimaltools.task.presentation.common.AppIcons
 import io.minimaltools.task.presentation.theme.AppTheme
 import io.minimaltools.task.util.DateUtils
 import io.minimaltools.task.util.capitalize
-import io.minimaltools.task.util.dismissDialog
+import io.minimaltools.task.util.dismiss
 import io.minimaltools.task.util.isVisible
 
 @Composable
@@ -258,7 +258,7 @@ private fun DatePicker(
     if (state.isVisible()) {
         DatePickerDialog(
             onDismissRequest = {
-                state.dismissDialog()
+                state.dismiss()
             },
             confirmButton = {
                 TextButton(
@@ -268,7 +268,7 @@ private fun DatePicker(
                                 datePickerState.selectedDateMillis ?: 0L
                             )
                         )
-                        state.dismissDialog()
+                        state.dismiss()
                     }
                 ) {
                     Text(text = "Done")
@@ -277,7 +277,7 @@ private fun DatePicker(
             dismissButton = {
                 TextButton(
                     onClick = {
-                        state.dismissDialog()
+                        state.dismiss()
                     }
                 ) {
                     Text(text = "Cancel")
@@ -297,7 +297,7 @@ private fun TimePicker(state: MutableState<Boolean>, onConfirm: (time: String) -
 
     if (state.isVisible()) {
         Dialog(
-            onDismissRequest = { state.dismissDialog() },
+            onDismissRequest = { state.dismiss() },
             properties = DialogProperties(
                 usePlatformDefaultWidth = false
             ),
@@ -334,7 +334,7 @@ private fun TimePicker(state: MutableState<Boolean>, onConfirm: (time: String) -
                     ) {
                         Spacer(modifier = Modifier.weight(1f))
                         TextButton(
-                            onClick = { state.dismissDialog() }
+                            onClick = { state.dismiss() }
                         ) {
                             Text("Cancel")
                         }
@@ -342,7 +342,7 @@ private fun TimePicker(state: MutableState<Boolean>, onConfirm: (time: String) -
                         TextButton(
                             onClick = {
                                 onConfirm("${timePickerState.hour}:${timePickerState.minute}")
-                                state.dismissDialog()
+                                state.dismiss()
                             }
                         ) {
                             Text("Done")
