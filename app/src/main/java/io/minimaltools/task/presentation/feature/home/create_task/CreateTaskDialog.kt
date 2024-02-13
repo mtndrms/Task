@@ -17,8 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -57,6 +54,9 @@ import io.minimaltools.task.data.local.entity.group.TaskGroup
 import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.presentation.common.AppIcons
+import io.minimaltools.task.presentation.component.DatePickerDialog
+import io.minimaltools.task.presentation.component.DateTimePicker
+import io.minimaltools.task.presentation.component.TimePickerDialog
 import io.minimaltools.task.presentation.theme.AppTheme
 import io.minimaltools.task.util.DateUtils
 import io.minimaltools.task.util.capitalize
@@ -111,7 +111,34 @@ fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
 
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.weight(1f)) {
-                            DateTimePicker(date, time)
+                            SectionTitle(title = stringResource(id = R.string.due_date))
+                            DateTimePicker(
+                                onCompleted = { selectedDate, selectedTime ->
+                                    date.value = selectedDate
+                                    time.value = selectedTime
+                                }
+                            ) { visibilityState ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(56.dp)
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            shape = RoundedCornerShape(4.dp)
+                                        )
+                                        .padding(horizontal = 10.dp)
+                                        .clickable {
+                                            visibilityState.value = true
+                                        }
+                                ) {
+                                    Text(
+                                        text = "${date.value.ifEmpty { DateUtils.getPlaceholderDate() }} - ${time.value.ifEmpty { "00:00" }}",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -199,159 +226,6 @@ private fun Description(description: MutableState<String>) {
             .height(125.dp)
     )
     Spacer(modifier = Modifier.height(height = 25.dp))
-}
-
-@Composable
-private fun DateTimePicker(date: MutableState<String>, time: MutableState<String>) {
-    val datePickerDialogVisibilityState = remember { mutableStateOf(false) }
-    val timePickerDialogVisibilityState = remember { mutableStateOf(false) }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        SectionTitle(title = stringResource(id = R.string.due_date))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .padding(horizontal = 10.dp)
-                .clickable {
-                    datePickerDialogVisibilityState.value = true
-                }
-        ) {
-            Text(
-                text = "${date.value.ifEmpty { DateUtils.getPlaceholderDate() }} - ${time.value.ifEmpty { "00:00" }}",
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-    }
-
-    DatePicker(
-        state = datePickerDialogVisibilityState,
-        onConfirm = { selectedDate ->
-            date.value = selectedDate
-            timePickerDialogVisibilityState.value = true
-        }
-    )
-
-    TimePicker(
-        state = timePickerDialogVisibilityState,
-        onConfirm = { selectedTime ->
-            time.value = selectedTime
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DatePicker(
-    state: MutableState<Boolean>,
-    onConfirm: (date: String) -> Unit
-) {
-    val datePickerState = rememberDatePickerState()
-
-    if (state.isVisible()) {
-        DatePickerDialog(
-            onDismissRequest = {
-                state.dismiss()
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onConfirm(
-                            DateUtils.millisecondsToDateString(
-                                datePickerState.selectedDateMillis ?: 0L
-                            )
-                        )
-                        state.dismiss()
-                    }
-                ) {
-                    Text(text = "Done")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        state.dismiss()
-                    }
-                ) {
-                    Text(text = "Cancel")
-                }
-            },
-            content = {
-                DatePicker(state = datePickerState)
-            }
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimePicker(state: MutableState<Boolean>, onConfirm: (time: String) -> Unit) {
-    val timePickerState = rememberTimePickerState()
-
-    if (state.isVisible()) {
-        Dialog(
-            onDismissRequest = { state.dismiss() },
-            properties = DialogProperties(
-                usePlatformDefaultWidth = false
-            ),
-        ) {
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                tonalElevation = 6.dp,
-                modifier = Modifier
-                    .width(IntrinsicSize.Min)
-                    .height(IntrinsicSize.Min)
-                    .background(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surface
-                    ),
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 20.dp),
-                        text = "Select date",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-
-                    androidx.compose.material3.TimePicker(state = timePickerState)
-
-                    Row(
-                        modifier = Modifier
-                            .height(40.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Spacer(modifier = Modifier.weight(1f))
-                        TextButton(
-                            onClick = { state.dismiss() }
-                        ) {
-                            Text("Cancel")
-                        }
-
-                        TextButton(
-                            onClick = {
-                                onConfirm("${timePickerState.hour}:${timePickerState.minute}")
-                                state.dismiss()
-                            }
-                        ) {
-                            Text("Done")
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Composable

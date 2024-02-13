@@ -14,6 +14,7 @@ fun AppNavHost(
     appState: AppState,
     createTaskDialogVisibilityState: MutableState<Boolean>,
     floatingActionButtonVisibilityState: MutableState<Boolean>,
+    dateRangePickerVisibilityState: MutableState<Boolean>,
     onShowSnackbar: suspend (String, String) -> Boolean,
     modifier: Modifier
 ) {
@@ -27,7 +28,8 @@ fun AppNavHost(
         homeScreen(
             onShowSnackbar = onShowSnackbar,
             createTaskDialogVisibilityState = createTaskDialogVisibilityState,
-            floatingActionButtonVisibilityState = floatingActionButtonVisibilityState
+            floatingActionButtonVisibilityState = floatingActionButtonVisibilityState,
+            dateRangePickerVisibilityState = dateRangePickerVisibilityState
         )
         settingsScreen()
     }

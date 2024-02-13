@@ -1,5 +1,6 @@
 package io.minimaltools.task.presentation.feature.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.minimaltools.task.data.fake.task.FakeTaskData.getAllFakeTasks
@@ -51,6 +52,12 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     fun clearUndoState() {
         _uiState.update { state: HomeUiState ->
             state.copy(shouldDisplayPinnedTaskSnackbar = false)
+        }
+    }
+
+    fun filterByDateRange(startDate: String, endDate: String) {
+        _uiState.update { state: HomeUiState ->
+            state.copy(startDate = startDate, endDate = endDate)
         }
     }
 }

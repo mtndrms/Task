@@ -26,7 +26,7 @@ object DateUtils {
     }
 
     /**
-     * @return the date of 1/1/2024 but localized
+     * @return the date of 01/01/1970 but localized
      */
     fun getPlaceholderDate(): String {
         val formatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())

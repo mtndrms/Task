@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -26,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,12 +45,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.dataStore
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.minimaltools.task.data.fake.task.FakeTaskData
 import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.presentation.common.AppIcons
+import io.minimaltools.task.presentation.component.DateRangePicker
+import io.minimaltools.task.presentation.component.DateTimePicker
 import io.minimaltools.task.presentation.feature.home.create_task.CreateTaskDialog
 import io.minimaltools.task.presentation.theme.AppTheme
 import io.minimaltools.task.util.capitalize
@@ -66,16 +66,19 @@ internal fun HomeRoute(
     onShowSnackbar: suspend (String, String) -> Boolean,
     viewModel: HomeViewModel = hiltViewModel(),
     createTaskDialogVisibilityState: MutableState<Boolean>,
-    floatingActionButtonVisibilityState: MutableState<Boolean>
+    floatingActionButtonVisibilityState: MutableState<Boolean>,
+    dateRangePickerVisibilityState: MutableState<Boolean>
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeScreen(
         uiState = uiState,
         createTaskDialogVisibilityState = createTaskDialogVisibilityState,
         floatingActionButtonVisibilityState = floatingActionButtonVisibilityState,
+        dateRangePickerVisibilityState = dateRangePickerVisibilityState,
         onShowSnackbar = onShowSnackbar,
         createTask = viewModel::createTask,
         pinTask = viewModel::pinTask,
+        filterByDate = viewModel::filterByDateRange,
         clearUndoState = viewModel::clearUndoState
     )
 }
@@ -85,9 +88,11 @@ private fun HomeScreen(
     uiState: HomeUiState,
     createTaskDialogVisibilityState: MutableState<Boolean>,
     floatingActionButtonVisibilityState: MutableState<Boolean>,
+    dateRangePickerVisibilityState: MutableState<Boolean>,
     onShowSnackbar: suspend (String, String) -> Boolean,
     createTask: (Task) -> Unit,
     pinTask: () -> Unit,
+    filterByDate: (String, String) -> Unit,
     clearUndoState: () -> Unit
 ) {
     LaunchedEffect(uiState.shouldDisplayPinnedTaskSnackbar) {
@@ -99,6 +104,14 @@ private fun HomeScreen(
                 clearUndoState()
             }
         }
+    }
+
+    if (dateRangePickerVisibilityState.isVisible()) {
+        DateRangePicker(
+            onCompleted = { startDate, endDate ->
+                filterByDate(startDate, endDate)
+            }
+        )
     }
 
     if (createTaskDialogVisibilityState.isVisible()) {
@@ -146,7 +159,7 @@ private fun HomeScreen(
                     priority = task.priority,
                     description = task.description,
                     isChecked = task.status,
-                    isMarked = false,
+                    isPinned = false,
                     pinTask = pinTask
                 )
             }
@@ -162,10 +175,10 @@ private fun TaskItem(
     priority: Priority,
     description: String,
     isChecked: Boolean,
-    isMarked: Boolean,
+    isPinned: Boolean,
     pinTask: () -> Unit
 ) {
-    var markedState by remember { mutableStateOf(isMarked) }
+    var pinnedState by remember { mutableStateOf(isPinned) }
     var checkedState by remember { mutableStateOf(isChecked) }
 
     Row(
@@ -256,14 +269,14 @@ private fun TaskItem(
             Box(modifier = Modifier.fillMaxHeight()) {
                 IconButton(
                     onClick = {
-                        markedState = markedState.not()
+                        pinnedState = pinnedState.not()
                         pinTask()
                     },
                     modifier = Modifier.align(Alignment.Center)
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = if (markedState) AppIcons.Star else AppIcons.StarOutline
+                            id = if (pinnedState) AppIcons.Star else AppIcons.StarOutline
                         ),
                         tint = MaterialTheme.colorScheme.onBackground,
                         contentDescription = "favorite"
@@ -308,8 +321,10 @@ private fun PreviewHomeScreenLight() {
             createTask = {},
             pinTask = { /*TODO*/ },
             clearUndoState = { /*TODO*/ },
+            filterByDate = { s, s2 -> },
             createTaskDialogVisibilityState = remember { mutableStateOf(false) },
-            floatingActionButtonVisibilityState = remember { mutableStateOf(false) }
+            floatingActionButtonVisibilityState = remember { mutableStateOf(false) },
+            dateRangePickerVisibilityState = remember { mutableStateOf(false) }
         )
     }
 }
@@ -327,8 +342,10 @@ private fun PreviewHomeScreenDark() {
             createTask = {},
             pinTask = { /*TODO*/ },
             clearUndoState = { /*TODO*/ },
-            createTaskDialogVisibilityState = remember { mutableStateOf(true) },
+            filterByDate = { s, s2 -> },
+            createTaskDialogVisibilityState = remember { mutableStateOf(false) },
             floatingActionButtonVisibilityState = remember { mutableStateOf(true) },
+            dateRangePickerVisibilityState = remember { mutableStateOf(false) }
         )
     }
 }
@@ -344,7 +361,7 @@ private fun PreviewTaskItemNewLight() {
             priority = FakeTaskData.getTaskForPreview().priority,
             description = FakeTaskData.getTaskForPreview().description,
             isChecked = false,
-            isMarked = false,
+            isPinned = false,
             pinTask = {}
         )
     }
@@ -361,7 +378,7 @@ private fun PreviewTaskItemNewDark() {
             priority = FakeTaskData.getTaskForPreview().priority,
             description = FakeTaskData.getTaskForPreview().description,
             isChecked = false,
-            isMarked = false,
+            isPinned = false,
             pinTask = {}
         )
     }

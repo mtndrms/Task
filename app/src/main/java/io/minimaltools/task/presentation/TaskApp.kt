@@ -38,6 +38,7 @@ import io.minimaltools.task.R
 import io.minimaltools.task.data.fake.group.FakeTaskGroupData.getAllFakeTaskGroups
 import io.minimaltools.task.data.local.entity.group.TaskGroup
 import io.minimaltools.task.presentation.common.AppIcons
+import io.minimaltools.task.presentation.component.DateTimePicker
 import io.minimaltools.task.util.show
 import kotlinx.coroutines.launch
 
@@ -50,6 +51,7 @@ fun TaskApp(appState: AppState = rememberAppState()) {
 
     val createTaskDialogVisibilityState = remember { mutableStateOf(false) }
     val floatingActionButtonVisibilityState = remember { mutableStateOf(true) }
+    val dateRangePickerVisibilityState = remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         taskGroups = getAllFakeTaskGroups()
@@ -108,12 +110,12 @@ fun TaskApp(appState: AppState = rememberAppState()) {
                     actions = {
                         IconButton(
                             onClick = {
-                                // handle click here
+                                dateRangePickerVisibilityState.show()
                             },
                             content = {
                                 Icon(
                                     imageVector = AppIcons.Date,
-                                    contentDescription = "pick date"
+                                    contentDescription = "pick date range"
                                 )
                             }
                         )
@@ -154,6 +156,7 @@ fun TaskApp(appState: AppState = rememberAppState()) {
                 appState = appState,
                 createTaskDialogVisibilityState = createTaskDialogVisibilityState,
                 floatingActionButtonVisibilityState = floatingActionButtonVisibilityState,
+                dateRangePickerVisibilityState = dateRangePickerVisibilityState,
                 onShowSnackbar = { message, action ->
                     snackbarHostState.showSnackbar(
                         message = message,
