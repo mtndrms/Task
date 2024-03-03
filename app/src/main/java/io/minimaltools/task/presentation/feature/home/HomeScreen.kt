@@ -108,6 +108,7 @@ private fun HomeScreen(
     if (dateRangePickerVisibilityState.isVisible()) {
         DateRangePicker(
             onCompleted = { startDate, endDate ->
+                dateRangePickerVisibilityState.dismiss()
                 filterByDate(startDate, endDate)
             }
         )
@@ -180,6 +181,7 @@ private fun TaskItem(
     isPinned: Boolean,
     pinTask: () -> Unit
 ) {
+    // this two states gonna be removed when the local database is implemented
     var pinnedState by remember { mutableStateOf(isPinned) }
     var checkedState by remember { mutableStateOf(isChecked) }
 
