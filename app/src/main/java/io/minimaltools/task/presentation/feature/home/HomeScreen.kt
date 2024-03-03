@@ -1,7 +1,5 @@
 package io.minimaltools.task.presentation.feature.home
 
-import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -42,10 +42,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.dataStore
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.minimaltools.task.data.fake.task.FakeTaskData
@@ -53,7 +53,6 @@ import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.presentation.common.AppIcons
 import io.minimaltools.task.presentation.component.DateRangePicker
-import io.minimaltools.task.presentation.component.DateTimePicker
 import io.minimaltools.task.presentation.feature.home.create_task.CreateTaskDialog
 import io.minimaltools.task.presentation.theme.AppTheme
 import io.minimaltools.task.util.capitalize
@@ -150,7 +149,10 @@ private fun HomeScreen(
                     }
                 })
         ) {
-            items(items = uiState.tasks) { task: Task ->
+            items(
+                items = uiState.tasks,
+                key = { it.id }
+            ) { task: Task ->
                 Spacer(modifier = Modifier.height(10.dp))
                 TaskItem(
                     name = task.name,
@@ -181,113 +183,106 @@ private fun TaskItem(
     var pinnedState by remember { mutableStateOf(isPinned) }
     var checkedState by remember { mutableStateOf(isChecked) }
 
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .wrapContentHeight()
+            .padding(start = 8.dp, end = 16.dp)
+            .clip(shape = RoundedCornerShape(bottomEnd = 8.dp))
             .background(MaterialTheme.colorScheme.background)
-            .padding(start = 8.dp, end = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(
-            checked = checkedState,
-            onCheckedChange = { checkedState = checkedState.not() }
-        )
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(start = 8.dp)
-                .clip(shape = RoundedCornerShape(size = 8.dp))
-                .background(MaterialTheme.colorScheme.surface),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
+            Checkbox(
+                checked = checkedState,
+                onCheckedChange = { checkedState = checkedState.not() }
+            )
+
+            Row(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .clip(shape = RoundedCornerShape(size = 8.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .weight(1f, fill = true)
-                    .padding(vertical = 16.dp, horizontal = 12.dp),
+                    .fillMaxWidth()
+                    .padding(start = 8.dp)
+                    .clip(
+                        shape = RoundedCornerShape(
+                            topStart = 8.dp,
+                            topEnd = 8.dp,
+                            bottomStart = 8.dp
+                        )
+                    )
+                    .background(MaterialTheme.colorScheme.surface),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.W500,
-                        fontSize = 16.sp,
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.W300,
-                        fontSize = 14.sp,
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier
+                        .clip(shape = RoundedCornerShape(size = 8.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .weight(1f, fill = true)
+                        .padding(vertical = 16.dp, horizontal = 12.dp),
                 ) {
                     Text(
-                        text = priority.name.capitalize(),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.W300,
-                            fontSize = 13.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                    Text(
-                        text = "|",
+                        text = name,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.W500,
-                            fontSize = 13.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(horizontal = 3.dp)
-                    )
-                    Text(
-                        text = "$dueDate at $dueTime",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.W300,
-                            fontSize = 13.sp
+                            fontSize = 16.sp,
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.End,
+                        overflow = TextOverflow.Ellipsis
                     )
-                }
-            }
-            Box(modifier = Modifier.fillMaxHeight()) {
-                IconButton(
-                    onClick = {
-                        pinnedState = pinnedState.not()
-                        pinTask()
-                    },
-                    modifier = Modifier.align(Alignment.Center)
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = if (pinnedState) AppIcons.Star else AppIcons.StarOutline
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.W300,
+                            fontSize = 14.sp,
                         ),
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        contentDescription = "favorite"
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = priority.name.capitalize(),
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.W300,
+                                fontSize = 13.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                        Text(
+                            text = "|",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.W500,
+                                fontSize = 13.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.padding(horizontal = 3.dp)
+                        )
+                        Text(
+                            text = "$dueDate at $dueTime",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.W300,
+                                fontSize = 13.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.End,
+                        )
+                    }
                 }
-                TrianglePriorityIndicator(
-                    color = priority.color,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                )
             }
         }
+        TrianglePriorityIndicator(
+            color = priority.color,
+            modifier = Modifier.align(Alignment.BottomEnd)
+        )
     }
 }
 
@@ -308,9 +303,10 @@ private fun TrianglePriorityIndicator(color: Color, modifier: Modifier = Modifie
         .then(modifier))
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@PreviewLightDark
+@PreviewFontScale
 @Composable
-private fun PreviewHomeScreenLight() {
+private fun PreviewHomeScreen() {
     AppTheme {
         HomeScreen(
             uiState = HomeUiState(
@@ -329,47 +325,11 @@ private fun PreviewHomeScreenLight() {
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewHomeScreenDark() {
-    AppTheme {
-        HomeScreen(
-            uiState = HomeUiState(
-                tasks = FakeTaskData.getAllFakeTasks(),
-                shouldDisplayPinnedTaskSnackbar = false
-            ),
-            onShowSnackbar = { _, _ -> true },
-            createTask = {},
-            pinTask = { /*TODO*/ },
-            clearUndoState = { /*TODO*/ },
-            filterByDate = { s, s2 -> },
-            createTaskDialogVisibilityState = remember { mutableStateOf(false) },
-            floatingActionButtonVisibilityState = remember { mutableStateOf(true) },
-            dateRangePickerVisibilityState = remember { mutableStateOf(false) }
-        )
-    }
-}
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@PreviewLightDark
+@PreviewFontScale
 @Composable
-private fun PreviewTaskItemNewLight() {
-    AppTheme {
-        TaskItem(
-            name = FakeTaskData.getTaskForPreview().name,
-            dueDate = FakeTaskData.getTaskForPreview().dueDate,
-            dueTime = FakeTaskData.getTaskForPreview().dueTime,
-            priority = FakeTaskData.getTaskForPreview().priority,
-            description = FakeTaskData.getTaskForPreview().description,
-            isChecked = false,
-            isPinned = false,
-            pinTask = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewTaskItemNewDark() {
+private fun PreviewTaskItem() {
     AppTheme {
         TaskItem(
             name = FakeTaskData.getTaskForPreview().name,

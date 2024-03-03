@@ -17,7 +17,7 @@ object FakeTaskData {
     )
 
     private val task2 = Task(
-        id = 0,
+        id = 1,
         name = "Unicorn Wrangling Training",
         dueDate = "2023-03-05",
         dueTime = "01:00",
@@ -28,7 +28,7 @@ object FakeTaskData {
     )
 
     private val task3 = Task(
-        id = 0,
+        id = 2,
         name = "Underwater Basket Weaving Tournament",
         dueDate = "2023-04-15",
         dueTime = "04:00",
@@ -39,7 +39,7 @@ object FakeTaskData {
     )
 
     private val task4 = Task(
-        id = 0,
+        id = 3,
         name = "Alien Diplomacy Summit",
         dueDate = "2023-06-20",
         dueTime = "08:00",
@@ -50,7 +50,7 @@ object FakeTaskData {
     )
 
     private val task5 = Task(
-        id = 0,
+        id = 4,
         name = "Extreme Juggling Marathon",
         dueDate = "2023-07-30",
         dueTime = "09:00",
@@ -61,7 +61,7 @@ object FakeTaskData {
     )
 
     private val task6 = Task(
-        id = 0,
+        id = 5,
         name = "Bigfoot Expedition",
         dueDate = "2023-09-08",
         dueTime = "20:00",
@@ -72,7 +72,7 @@ object FakeTaskData {
     )
 
     private val task7 = Task(
-        id = 0,
+        id = 6,
         name = "Time Capsule Preparation",
         dueDate = "2023-10-25",
         dueTime = "22:15",
@@ -83,7 +83,7 @@ object FakeTaskData {
     )
 
     private val task8 = Task(
-        id = 0,
+        id = 7,
         name = "Ninja Cat Training",
         dueDate = "2023-12-01",
         dueTime = "16:30",
@@ -94,7 +94,7 @@ object FakeTaskData {
     )
 
     private val task9 = Task(
-        id = 0,
+        id = 8,
         name = "Pirate Treasure Hunt",
         dueDate = "2024-01-15",
         dueTime = "22:30",
@@ -105,7 +105,7 @@ object FakeTaskData {
     )
 
     private val task10 = Task(
-        id = 0,
+        id = 9,
         name = "Robot Dance Competition",
         dueDate = "2024-02-28",
         dueTime = "19:40",
