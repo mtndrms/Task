@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,10 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,20 +53,16 @@ import io.minimaltools.task.data.local.entity.group.TaskGroup
 import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.data.local.entity.task.priority.Priority
 import io.minimaltools.task.presentation.common.AppIcons
-import io.minimaltools.task.presentation.component.DatePickerDialog
 import io.minimaltools.task.presentation.component.DateTimePicker
-import io.minimaltools.task.presentation.component.TimePickerDialog
 import io.minimaltools.task.presentation.theme.AppTheme
 import io.minimaltools.task.util.DateUtils
 import io.minimaltools.task.util.capitalize
-import io.minimaltools.task.util.dismiss
-import io.minimaltools.task.util.isVisible
 
 @Composable
 fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
     val title = remember { mutableStateOf("") }
     val description = remember { mutableStateOf("") }
-    val date = remember { mutableStateOf("") }
+    val date = remember { mutableLongStateOf(0L) }
     val time = remember { mutableStateOf("") }
     val status = remember { mutableStateOf(false) }
     val priority = remember { mutableStateOf(Priority.LOW) }
@@ -89,7 +84,7 @@ fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
                     task = Task(
                         name = title.value,
                         description = description.value,
-                        dueDate = date.value,
+                        dueDate = DateUtils.millisecondsToDateString(date.longValue),
                         dueTime = time.value,
                         priority = priority.value,
                         taskGroup = taskGroup.value,
@@ -134,7 +129,15 @@ fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
                                         }
                                 ) {
                                     Text(
-                                        text = "${date.value.ifEmpty { DateUtils.getPlaceholderDate() }} - ${time.value.ifEmpty { "00:00" }}",
+                                        text = "${
+                                            if (date.longValue == 0L) {
+                                                DateUtils.getPlaceholderDate()
+                                            } else {
+                                                DateUtils.millisecondsToDateString(date.longValue)
+                                            }
+                                        } - ${
+                                            time.value.ifEmpty { "00:00" }
+                                        }",
                                         style = MaterialTheme.typography.bodyLarge
                                     )
                                 }

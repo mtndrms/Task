@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.minimaltools.task.data.fake.task.FakeTaskData.getAllFakeTasks
 import io.minimaltools.task.data.local.entity.task.Task
+import io.minimaltools.task.util.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -55,9 +56,15 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun filterByDateRange(startDate: String, endDate: String) {
+    fun filterByDateRange(startDate: Long, endDate: Long) {
+        val tasks = _uiState.value.tasks.filter {
+            DateUtils.dateStringToMilliseconds(it.dueDate) in startDate..endDate
+        }
+
+        Log.d("HomeViewModel", "size: ${tasks.size} list: $tasks")
+
         _uiState.update { state: HomeUiState ->
-            state.copy(startDate = startDate, endDate = endDate)
+            state.copy(startDate = startDate, endDate = endDate, tasks = tasks)
         }
     }
 }

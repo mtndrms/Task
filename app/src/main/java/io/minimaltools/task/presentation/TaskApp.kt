@@ -39,16 +39,18 @@ import io.minimaltools.task.data.fake.group.FakeTaskGroupData.getAllFakeTaskGrou
 import io.minimaltools.task.data.local.entity.group.TaskGroup
 import io.minimaltools.task.presentation.common.AppIcons
 import io.minimaltools.task.presentation.component.DateTimePicker
+import io.minimaltools.task.util.DateUtils
 import io.minimaltools.task.util.show
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskApp(appState: AppState = rememberAppState()) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val title = remember { mutableStateOf("Today") }
     var taskGroups by remember { mutableStateOf(emptyList<TaskGroup>()) }
-    val snackbarHostState = remember { SnackbarHostState() }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val createTaskDialogVisibilityState = remember { mutableStateOf(false) }
     val floatingActionButtonVisibilityState = remember { mutableStateOf(true) }
     val dateRangePickerVisibilityState = remember { mutableStateOf(false) }
@@ -89,7 +91,7 @@ fun TaskApp(appState: AppState = rememberAppState()) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "Today") },
+                    title = { Text(text = title.value) },
                     navigationIcon = {
                         IconButton(
                             onClick = {
@@ -163,6 +165,13 @@ fun TaskApp(appState: AppState = rememberAppState()) {
                         actionLabel = action,
                         duration = SnackbarDuration.Short
                     ) == SnackbarResult.ActionPerformed
+                },
+                changeTitle = {
+                    if (it != "${DateUtils.getDateNow()} - ${DateUtils.getDateNow()}") {
+                        title.value = it
+                    } else {
+                        title.value = "Today"
+                    }
                 },
                 modifier = Modifier.padding(paddingValues)
             )

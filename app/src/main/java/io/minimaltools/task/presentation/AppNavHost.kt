@@ -16,6 +16,7 @@ fun AppNavHost(
     floatingActionButtonVisibilityState: MutableState<Boolean>,
     dateRangePickerVisibilityState: MutableState<Boolean>,
     onShowSnackbar: suspend (String, String) -> Boolean,
+    changeTitle: (String) -> Unit,
     modifier: Modifier
 ) {
     NavHost(
@@ -26,6 +27,7 @@ fun AppNavHost(
             .then(modifier)
     ) {
         homeScreen(
+            changeTitle = changeTitle,
             onShowSnackbar = onShowSnackbar,
             createTaskDialogVisibilityState = createTaskDialogVisibilityState,
             floatingActionButtonVisibilityState = floatingActionButtonVisibilityState,

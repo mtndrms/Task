@@ -16,7 +16,7 @@ import io.minimaltools.task.util.isVisible
 @Composable
 fun DatePickerDialog(
     state: MutableState<Boolean>,
-    onConfirm: (date: String) -> Unit,
+    onConfirm: (date: Long) -> Unit,
     onCancel: () -> Unit = {}
 ) {
     val datePickerState = rememberDatePickerState()
@@ -30,9 +30,7 @@ fun DatePickerDialog(
                 TextButton(
                     onClick = {
                         onConfirm(
-                            DateUtils.millisecondsToDateString(
-                                datePickerState.selectedDateMillis ?: 0L
-                            )
+                            datePickerState.selectedDateMillis ?: 0L
                         )
                         state.dismiss()
                     }

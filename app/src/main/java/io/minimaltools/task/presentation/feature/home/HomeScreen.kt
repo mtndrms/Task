@@ -62,6 +62,7 @@ import io.minimaltools.task.util.show
 
 @Composable
 internal fun HomeRoute(
+    changeTitle: (String) -> Unit,
     onShowSnackbar: suspend (String, String) -> Boolean,
     viewModel: HomeViewModel = hiltViewModel(),
     createTaskDialogVisibilityState: MutableState<Boolean>,
@@ -78,7 +79,8 @@ internal fun HomeRoute(
         createTask = viewModel::createTask,
         pinTask = viewModel::pinTask,
         filterByDate = viewModel::filterByDateRange,
-        clearUndoState = viewModel::clearUndoState
+        clearUndoState = viewModel::clearUndoState,
+        changeTitle = changeTitle
     )
 }
 
@@ -91,8 +93,9 @@ private fun HomeScreen(
     onShowSnackbar: suspend (String, String) -> Boolean,
     createTask: (Task) -> Unit,
     pinTask: () -> Unit,
-    filterByDate: (String, String) -> Unit,
-    clearUndoState: () -> Unit
+    filterByDate: (Long, Long) -> Unit,
+    clearUndoState: () -> Unit,
+    changeTitle: (String) -> Unit
 ) {
     LaunchedEffect(uiState.shouldDisplayPinnedTaskSnackbar) {
         if (uiState.shouldDisplayPinnedTaskSnackbar) {
@@ -110,6 +113,7 @@ private fun HomeScreen(
             onCompleted = { startDate, endDate ->
                 dateRangePickerVisibilityState.dismiss()
                 filterByDate(startDate, endDate)
+                changeTitle("$startDate - $endDate")
             }
         )
     }
@@ -322,7 +326,8 @@ private fun PreviewHomeScreen() {
             filterByDate = { s, s2 -> },
             createTaskDialogVisibilityState = remember { mutableStateOf(false) },
             floatingActionButtonVisibilityState = remember { mutableStateOf(false) },
-            dateRangePickerVisibilityState = remember { mutableStateOf(false) }
+            dateRangePickerVisibilityState = remember { mutableStateOf(false) },
+            changeTitle = {}
         )
     }
 }

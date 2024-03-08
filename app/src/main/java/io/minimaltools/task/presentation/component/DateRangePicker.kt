@@ -1,24 +1,25 @@
 package io.minimaltools.task.presentation.component
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import io.minimaltools.task.util.DateUtils
 
 @Composable
 fun DateRangePicker(
-    onCompleted: (String, String) -> Unit
+    onCompleted: (Long, Long) -> Unit
 ) {
     val startDatePickerDialogVisibilityState = remember { mutableStateOf(true) }
     val endDatePickerDialogVisibilityState = remember { mutableStateOf(false) }
 
-    val startDate = remember { mutableStateOf(DateUtils.getPlaceholderDate()) }
-    val endDate = remember { mutableStateOf("") }
+    val startDate = remember { mutableLongStateOf(0L) }
+    val endDate = remember { mutableLongStateOf(0L) }
 
     DatePickerDialog(
         state = startDatePickerDialogVisibilityState,
         onConfirm = { selectedDate ->
-            startDate.value = selectedDate
+            startDate.longValue = selectedDate
             endDatePickerDialogVisibilityState.value = true
         }
     )
@@ -26,8 +27,8 @@ fun DateRangePicker(
     DatePickerDialog(
         state = endDatePickerDialogVisibilityState,
         onConfirm = { selectedDate ->
-            endDate.value = selectedDate
-            onCompleted(startDate.value, endDate.value)
+            endDate.longValue = selectedDate
+            onCompleted(startDate.longValue, endDate.longValue)
         }
     )
 }

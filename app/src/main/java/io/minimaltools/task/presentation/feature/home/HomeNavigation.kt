@@ -12,6 +12,7 @@ fun NavController.navigateToHomeScreen(navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.homeScreen(
+    changeTitle: (String) -> Unit,
     onShowSnackbar: suspend (String, String) -> Boolean,
     createTaskDialogVisibilityState: MutableState<Boolean>,
     floatingActionButtonVisibilityState: MutableState<Boolean>,
@@ -19,6 +20,7 @@ fun NavGraphBuilder.homeScreen(
 ) {
     composable(route = TopLevelDestination.HOME.route) {
         HomeRoute(
+            changeTitle = changeTitle,
             onShowSnackbar = onShowSnackbar,
             createTaskDialogVisibilityState = createTaskDialogVisibilityState,
             floatingActionButtonVisibilityState = floatingActionButtonVisibilityState,
