@@ -8,7 +8,8 @@ import io.minimaltools.task.util.DateUtils
 
 @Composable
 fun DateRangePicker(
-    onCompleted: (Long, Long) -> Unit
+    onCompleted: (Long, Long) -> Unit,
+    onCancel: () -> Unit
 ) {
     val startDatePickerDialogVisibilityState = remember { mutableStateOf(true) }
     val endDatePickerDialogVisibilityState = remember { mutableStateOf(false) }
@@ -21,7 +22,8 @@ fun DateRangePicker(
         onConfirm = { selectedDate ->
             startDate.longValue = selectedDate
             endDatePickerDialogVisibilityState.value = true
-        }
+        },
+        onCancel = onCancel
     )
 
     DatePickerDialog(
@@ -29,6 +31,7 @@ fun DateRangePicker(
         onConfirm = { selectedDate ->
             endDate.longValue = selectedDate
             onCompleted(startDate.longValue, endDate.longValue)
-        }
+        },
+        onCancel = onCancel
     )
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,11 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +34,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,10 +46,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.minimaltools.task.data.fake.task.FakeTaskData
 import io.minimaltools.task.data.local.entity.task.Task
 import io.minimaltools.task.data.local.entity.task.priority.Priority
-import io.minimaltools.task.presentation.common.AppIcons
 import io.minimaltools.task.presentation.component.DateRangePicker
 import io.minimaltools.task.presentation.feature.home.create_task.CreateTaskDialog
 import io.minimaltools.task.presentation.theme.AppTheme
+import io.minimaltools.task.util.DateUtils
 import io.minimaltools.task.util.capitalize
 import io.minimaltools.task.util.dismiss
 import io.minimaltools.task.util.isVisible
@@ -113,7 +108,16 @@ private fun HomeScreen(
             onCompleted = { startDate, endDate ->
                 dateRangePickerVisibilityState.dismiss()
                 filterByDate(startDate, endDate)
-                changeTitle("$startDate - $endDate")
+                changeTitle(
+                    "${
+                        DateUtils.millisecondsToDateString(startDate)
+                    } - ${
+                        DateUtils.millisecondsToDateString(endDate)
+                    }"
+                )
+            },
+            onCancel = {
+                dateRangePickerVisibilityState.dismiss()
             }
         )
     }

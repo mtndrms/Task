@@ -1,11 +1,7 @@
 package io.minimaltools.task.util
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.text.DateFormat
 import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeParseException
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale

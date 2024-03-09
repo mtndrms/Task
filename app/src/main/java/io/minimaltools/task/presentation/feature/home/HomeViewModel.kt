@@ -61,8 +61,6 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             DateUtils.dateStringToMilliseconds(it.dueDate) in startDate..endDate
         }
 
-        Log.d("HomeViewModel", "size: ${tasks.size} list: $tasks")
-
         _uiState.update { state: HomeUiState ->
             state.copy(startDate = startDate, endDate = endDate, tasks = tasks)
         }
