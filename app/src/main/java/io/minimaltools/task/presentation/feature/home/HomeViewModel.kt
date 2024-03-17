@@ -1,6 +1,5 @@
 package io.minimaltools.task.presentation.feature.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.minimaltools.task.data.fake.task.FakeTaskData.getAllFakeTasks
@@ -58,7 +57,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
     fun filterByDateRange(startDate: Long, endDate: Long) {
         val tasks = _uiState.value.tasks.filter {
-            DateUtils.dateStringToMilliseconds(it.dueDate) in startDate..endDate
+            DateUtils.dateStringToEpoch(it.dueDate) in startDate..endDate
         }
 
         _uiState.update { state: HomeUiState ->

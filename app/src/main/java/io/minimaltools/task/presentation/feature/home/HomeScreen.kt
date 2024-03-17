@@ -1,6 +1,7 @@
 package io.minimaltools.task.presentation.feature.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -110,9 +112,9 @@ private fun HomeScreen(
                 filterByDate(startDate, endDate)
                 changeTitle(
                     "${
-                        DateUtils.millisecondsToDateString(startDate)
+                        DateUtils.epochToDateString(startDate)
                     } - ${
-                        DateUtils.millisecondsToDateString(endDate)
+                        DateUtils.epochToDateString(endDate)
                     }"
                 )
             },
@@ -138,43 +140,69 @@ private fun HomeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(object : NestedScrollConnection {
-                    override fun onPreScroll(
-                        available: Offset,
-                        source: NestedScrollSource
-                    ): Offset {
-                        if (available.y < -1) {
-                            floatingActionButtonVisibilityState.dismiss()
-                        }
+        if (uiState.tasks.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(object : NestedScrollConnection {
+                        override fun onPreScroll(
+                            available: Offset,
+                            source: NestedScrollSource
+                        ): Offset {
+                            if (available.y < -1) {
+                                floatingActionButtonVisibilityState.dismiss()
+                            }
 
-                        if (available.y > 1) {
-                            floatingActionButtonVisibilityState.show()
-                        }
+                            if (available.y > 1) {
+                                floatingActionButtonVisibilityState.show()
+                            }
 
-                        return Offset.Zero
-                    }
-                })
-        ) {
-            items(
-                items = uiState.tasks,
-                key = { it.id }
-            ) { task: Task ->
-                Spacer(modifier = Modifier.height(10.dp))
-                TaskItem(
-                    name = task.name,
-                    dueDate = task.dueDate,
-                    dueTime = task.dueTime,
-                    priority = task.priority,
-                    description = task.description,
-                    isChecked = task.status,
-                    isPinned = false,
-                    pinTask = pinTask
-                )
+                            return Offset.Zero
+                        }
+                    })
+            ) {
+                items(
+                    items = uiState.tasks,
+                    key = { it.id }
+                ) { task: Task ->
+                    Spacer(modifier = Modifier.height(10.dp))
+                    TaskItem(
+                        name = task.name,
+                        dueDate = task.dueDate,
+                        dueTime = task.dueTime,
+                        priority = task.priority,
+                        description = task.description,
+                        isChecked = task.status,
+                        isPinned = false,
+                        pinTask = pinTask
+                    )
+                }
             }
+        } else {
+            NothingToList(uiState.startDate, uiState.endDate)
         }
+    }
+}
+
+@Composable
+fun NothingToList(startDate: Long?, endDate: Long?, modifier: Modifier = Modifier) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(0.5f)
+            .then(modifier)
+    ) {
+        Text(
+            text = if (startDate != null && endDate != null) {
+                "There is no task to list for\nspecified date range"
+            } else {
+                "All done!"
+            },
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp
+        )
     }
 }
 

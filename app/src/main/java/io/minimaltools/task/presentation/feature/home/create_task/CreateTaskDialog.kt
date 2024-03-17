@@ -84,7 +84,7 @@ fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
                     task = Task(
                         name = title.value,
                         description = description.value,
-                        dueDate = DateUtils.millisecondsToDateString(date.longValue),
+                        dueDate = DateUtils.epochToDateString(date.longValue),
                         dueTime = time.value,
                         priority = priority.value,
                         taskGroup = taskGroup.value,
@@ -133,7 +133,7 @@ fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
                                             if (date.longValue == 0L) {
                                                 DateUtils.getPlaceholderDate()
                                             } else {
-                                                DateUtils.millisecondsToDateString(date.longValue)
+                                                DateUtils.epochToDateString(date.longValue)
                                             }
                                         } - ${
                                             time.value.ifEmpty { "00:00" }

@@ -8,13 +8,13 @@ import java.util.Locale
 import java.util.TimeZone
 
 object DateUtils {
-    fun millisecondsToDateString(milliseconds: Long): String {
+    fun epochToDateString(milliseconds: Long): String {
         val date = Date(milliseconds)
         val formatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
         return formatter.format(date)
     }
 
-    fun millisecondsToDateTimeString(milliseconds: Long): String {
+    fun epochToDateTimeString(milliseconds: Long): String {
         val date = Date(milliseconds)
         val formatter =
             DateFormat.getDateTimeInstance(
@@ -27,7 +27,7 @@ object DateUtils {
     }
 
     @Throws(ParseException::class)
-    fun dateStringToMilliseconds(date: String): Long {
+    fun dateStringToEpoch(date: String): Long {
         val formatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault())
 
         return try {
