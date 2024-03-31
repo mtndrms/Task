@@ -14,6 +14,6 @@ data class Task(
     @ColumnInfo(name = "due_date") val dueDate: String,
     @ColumnInfo(name = "due_time") val dueTime: String,
     @ColumnInfo(name = "priority") val priority: Priority,
-    @ColumnInfo(name = "task_group") val taskGroup: TaskGroup,
+    @ColumnInfo(name = "task_group") val taskGroup: Int,
     @ColumnInfo(name = "status") val status: Boolean
 )

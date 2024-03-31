@@ -13,7 +13,7 @@ object FakeTaskData {
         priority = Priority.HIGH,
         description = "Conduct a quantum leap experiment to explore the possibilities of time travel. Remember to wear the special socks!",
         status = true,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task2 = Task(
@@ -24,7 +24,7 @@ object FakeTaskData {
         priority = Priority.MEDIUM,
         description = "Attend a unicorn wrangling workshop to enhance magical creature handling skills. Bring rainbow lassos and enchanted snacks.",
         status = false,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task3 = Task(
@@ -35,7 +35,7 @@ object FakeTaskData {
         priority = Priority.LOW,
         description = "Practice underwater basket weaving for the upcoming international tournament. Don't forget the scuba gear and waterproof wicker.",
         status = false,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task4 = Task(
@@ -46,7 +46,7 @@ object FakeTaskData {
         priority = Priority.HIGH,
         description = "Attend the intergalactic diplomacy summit to represent Earth. Brush up on extraterrestrial etiquette and learn to say 'hello' in three alien languages.",
         status = true,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task5 = Task(
@@ -57,7 +57,7 @@ object FakeTaskData {
         priority = Priority.MEDIUM,
         description = "Train for the extreme juggling marathon by practicing with flaming torches and chainsaws. Safety first!",
         status = false,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task6 = Task(
@@ -68,7 +68,7 @@ object FakeTaskData {
         priority = Priority.HIGH,
         description = "Embark on a Bigfoot expedition to gather evidence of the elusive creature. Pack a camera, snacks, and a spare pair of binoculars.",
         status = true,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task7 = Task(
@@ -79,7 +79,7 @@ object FakeTaskData {
         priority = Priority.LOW,
         description = "Assemble items for a time capsule burial. Include a Rubik's cube, a mixtape of 80s hits, and a fidget spinner for future generations.",
         status = true,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task8 = Task(
@@ -90,7 +90,7 @@ object FakeTaskData {
         priority = Priority.MEDIUM,
         description = "Train the family cat in the ancient art of ninja skills. Obtain a tiny ninja costume for optimal training sessions.",
         status = false,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task9 = Task(
@@ -101,7 +101,7 @@ object FakeTaskData {
         priority = Priority.HIGH,
         description = "Plan a pirate treasure hunt with a detailed map and hidden clues. Ensure that the treasure chest contains chocolate doubloons and gummy worms.",
         status = true,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     private val task10 = Task(
@@ -112,7 +112,7 @@ object FakeTaskData {
         priority = Priority.LOW,
         description = "Choreograph a dance routine for the upcoming robot dance competition. Program the robot to breakdance and perform the moonwalk.",
         status = false,
-        taskGroup = FakeTaskGroupData.getRandomTaskGroup()
+        taskGroup = FakeTaskGroupData.getRandomTaskGroup().id
     )
 
     fun getAllFakeTasks(): List<Task> {
