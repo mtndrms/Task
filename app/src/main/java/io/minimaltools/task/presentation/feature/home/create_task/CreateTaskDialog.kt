@@ -87,7 +87,7 @@ fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
                         dueDate = DateUtils.epochToDateString(date.longValue),
                         dueTime = time.value,
                         priority = priority.value,
-                        taskGroup = taskGroup.value,
+                        taskGroup = taskGroup.value.id,
                         status = status.value
                     ),
                     createTask = createTask,
@@ -109,7 +109,7 @@ fun CreateTaskDialog(createTask: (Task) -> Unit, dismissDialog: () -> Unit) {
                             SectionTitle(title = stringResource(id = R.string.due_date))
                             DateTimePicker(
                                 onCompleted = { selectedDate, selectedTime ->
-                                    date.value = selectedDate
+                                    date.longValue = selectedDate
                                     time.value = selectedTime
                                 }
                             ) { visibilityState ->
