@@ -6,8 +6,8 @@ It is an offline-first, work-oriented, complexity-free, in short, **minimal** ta
 ## Screenshots
 |:earth_americas:| :rocket:| :waning_crescent_moon:|
 | ------------------------- | ------------------ | ---------------------------------------- |
-| <img src="./screenshots/dark-0.png" width="216" height="444"> | <img src="./screenshots/dark-1.png" width="216" height="444"> | <img src="./screenshots/dark-2.png" width="216" height="444">|
-| <img src="./screenshots/light-0.png" width="216" height="444"> | <img src="./screenshots/light-1.png" width="216" height="444"> | <img src="./screenshots/light-2.png" width="216" height="444">|
+| <img src="./screenshots/dark-0.png" width="270" height="600"> | <img src="./screenshots/dark-1.png" width="270" height="600"> | <img src="./screenshots/dark-2.png" width="270" height="600">|
+| <img src="./screenshots/light-0.png" width="270" height="600"> | <img src="./screenshots/light-1.png" width="270" height="600"> | <img src="./screenshots/light-2.png" width="270" height="600">|
 
 ## Used Technologies
 - Kotlin
